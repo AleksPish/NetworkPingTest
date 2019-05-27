@@ -1,13 +1,8 @@
 [CmdletBinding()]
-Param (
-    [int32]$Count = 1,
-    
-    [Parameter(ValueFromPipeline=$true)]
-    [String[]]$Computer = "1.1.1.1",
-    
-    [string]$LogPath = "c:\pinglog\network_down_status.csv"
-)
 
+$Count = 1
+$Computer = Read-Host -Prompt "Enter IP Address or Hostname to monitor"   
+$LogPath = Read-Host -Prompt "Enter filepath for saving log file - add .csv"
 $Ping = @()
 #Test if path exists, if not, create it
 If (-not (Test-Path (Split-Path $LogPath) -PathType Container))
