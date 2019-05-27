@@ -1,8 +1,9 @@
 [CmdletBinding()]
 
 $Count = 1
-$Computer = Read-Host -Prompt "Enter IP Address or Hostname to monitor"   
-$LogPath = Read-Host -Prompt "Enter filepath for saving log file - add .csv"
+$Computer = Read-Host -Prompt "Enter IP Address or Hostname to monitor"  
+$LogPath = Read-Host -Prompt "Enter filepath for saving log file - use .csv"
+$TimePing = Read-Host -Prompt "Enter time in seconds between pings"
 $Ping = @()
 #Test if path exists, if not, create it
 If (-not (Test-Path (Split-Path $LogPath) -PathType Container))
@@ -17,13 +18,13 @@ If (-not (Test-Path $LogPath))
 }
 
 #Log collection loop
-Write-Verbose "Beginning Ping monitoring of $Comptuer for $Count tries:"
+Write-Verbose "Beginning Ping monitoring of $Comptuer every $TimePing seconds:"
 While ($Count -gt 0)
 {   $Ping = Get-WmiObject Win32_PingStatus -Filter "Address = '$Computer'" | Select @{Label="TimeStamp";Expression={Get-Date}},@{Label="Source";Expression={ $_.__Server }},@{Label="Destination";Expression={ $_.Address }},IPv4Address,@{Label="Status";Expression={ If ($_.StatusCode -ne 0) {"Failed"} Else {""}}},ResponseTime
     $Result = $Ping | Select TimeStamp,Source,Destination,IPv4Address,Status,ResponseTime | ConvertTo-Csv -NoTypeInformation
     $Result[1] | Add-Content -Path $LogPath
     Write-verbose ($Ping | Select TimeStamp,Source,Destination,IPv4Address,Status,ResponseTime | Format-Table -AutoSize | Out-String)
-    $Count ++
-	Write-verbose $Count
-    Start-Sleep -Seconds 10
+    $Count ++ 
+    Write-Verbose $Count
+    Start-Sleep -Seconds $TimePing
 }
